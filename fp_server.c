@@ -58,5 +58,27 @@ int main(int argc, char *argv[]){
         perror("bind");
         exit(1);
     }
+
+    if(listen(server_fd, 1) == -1){
+            perror("listen");
+            exit(1);
+        }
+
+    sin_size_client = sizeof(client);
+
+    while (1){
+        if((client_fd = accept(server_fd, (struct sockaddr *)&client, &sin_size_client)) == -1) {
+            perror("accept");
+            exit(1);
+        }
+
+        printf("Server: Client is connected from: %s\n", inet_ntoa(client.sin_addr));
+
+        if((numbytes = recv(client_fd, buf, 100-1, 0)) == -1) {
+            perror("recv");
+            exit(1);
+        }
+    }
+    
     
 }
