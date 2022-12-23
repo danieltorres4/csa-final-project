@@ -17,3 +17,32 @@
 #include <sys/socket.h>
 #define MAXDATASIZE 100
 #define MAXDATASIZE_RESP 20000
+
+void main(int argc, char const *argv[])
+{
+    char command[MAXDATASIZE];
+    int len_command;
+
+    int numbytes;
+    char buf[MAXDATASIZE_RESP];
+
+    int sockfd;
+    struct hostent *he;
+    struct sockaddr_in client;
+
+    if(argc != 3) {
+        fprintf(stderr, "usage client hostname port\n");
+        exit(1);
+    }
+
+    if((he = gethostbyname(argv[1]) == NULL)) {
+        perror("gethostbyname");
+        exit(1);
+    }
+
+    if((sockfd = socket(AF_INET, SOCK_STREAM, 0)) == -1) {
+        perror("socket");
+        exit(1);
+    }
+    
+}
