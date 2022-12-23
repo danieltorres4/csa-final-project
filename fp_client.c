@@ -18,11 +18,13 @@
 #define MAXDATASIZE 100
 #define MAXDATASIZE_RESP 20000
 
-void main(int argc, char const *argv[])
+int main(int argc, char const *argv[])
 {
+    //Command request
     char command[MAXDATASIZE];
     int len_command;
 
+    //Comamand response
     int numbytes;
     char buf[MAXDATASIZE_RESP];
 
@@ -44,5 +46,43 @@ void main(int argc, char const *argv[])
         perror("socket");
         exit(1);
     }
+
+    client.sin_family = AF_INET;
+    client.sin_port = htons(atoi(argv[2]));
+    client.sin_addr = *((struct in_addr *)he->h_addr);
+    memset(&(client.sin_zero), '\0', 8);
+
+    if(connect(sockfd, (struct sockaddr *)&client, sizeof(struct sockaddr)) == -1) {
+        perror("connect");
+        exit(1);
+    }
+
+    while(strcmp(buf, "bye\n") != 0) {
+        fgets(command, MAXDATASIZE-1, stdin);
+        len_command = strlen(command) - 1;
+        command[len_command] = '\0';
+
+        printf("Command: %s\n",command);
+
+        if(send(sockfd, command, len_command, 0) == -1) {
+            perror("send");
+            exit(1);
+        } else {
+            printf("Command has been sent");
+        }
+
+        if((numbytes = recv(sockfd, buf, MAXDATASIZE_RESP-1, 0)) == -1) {
+            perror("recv");
+            exit(1);
+        }
+
+        buf[numbytes] = '\0';
+        printf("Received:\n%s\n",buf);
+
+        close(sockfd);
+
+    }
+
+    return 0;
     
 }
