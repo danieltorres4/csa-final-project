@@ -1,11 +1,15 @@
 /**************************************************/
 /**** CLIENT-SERVER ARCHITECTURE FINAL PROJECT ****/
 /*                                                */
+/****************  SERVER PROGRAM  ****************/
+/*                                                */
 /****************   TEAM MEMBERS   ****************/
 /*                                                */
 /********  HERRERA GODINA ADRIANA JOCELYN  ********/
 /********   SANCHEZ TORRES SERGIO DANIEL   ********/
 /**************************************************/
+
+//Required headers
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -24,11 +28,14 @@ int main(int argc, char *argv[]){
     int numbytes;
     char buf[150];
 
+    //Server and client file descriptors
     int server_fd, client_fd;
 
+    //sockaddr_in structs: server and client
     struct sockaddr_in server;
     struct sockaddr_in client;
 
+    //server and client length
     int sin_size_server;
     int sin_size_client;
 
@@ -46,10 +53,10 @@ int main(int argc, char *argv[]){
         printf("Server-setsockopt() is OK...\n");
     }
 
-    server.sin_family = AF_INET;
-    server.sin_port = htons(atoi(argv[1]));
-    server.sin_addr.s_addr = INADDR_ANY;
-    memset(&(server.sin_zero), '\0', 8);
+    server.sin_family = AF_INET; //Machine byte sorting
+    server.sin_port = htons(atoi(argv[1])); //Network byte sorting
+    server.sin_addr.s_addr = INADDR_ANY; //Fill with IP address
+    memset(&(server.sin_zero), '\0', 8); //Reset the rest of the structure to zero
 
     sin_size_server = sizeof(server);
 
