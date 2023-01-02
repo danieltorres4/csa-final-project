@@ -19,6 +19,8 @@
 #include <sys/types.h>
 #include <netinet/in.h>
 #include <sys/socket.h>
+
+//Required constants
 #define MAXDATASIZE 100
 #define MAXDATASIZE_RESP 20000
 
@@ -47,22 +49,25 @@ int main(int argc, char const *argv[])
         exit(1);
     }
 
+    //Calling socket() function. It will return the  client's file descriptor
     if((sockfd = socket(AF_INET, SOCK_STREAM, 0)) == -1) {
         perror("socket");
         exit(1);
     }
 
+    //Initializing the struct attributes
     client.sin_family = AF_INET; //Machine byte sorting
     client.sin_port = htons(atoi(argv[2])); //Network byte sorting
     client.sin_addr = *((struct in_addr *)he->h_addr);
     memset(&(client.sin_zero), '\0', 8); //Reset the rest of the structure to zero
 
+    //Trying to connect with the server.
     if(connect(sockfd, (struct sockaddr *)&client, sizeof(struct sockaddr)) == -1) {
         perror("connect");
         exit(1);
     }
 
-    //As long as the word "bye" is not received, the following lines will be executed
+    //As long as the word "adios" is not received, the following lines will be executed
     while(strcmp(command, "adios") != 0) {
         fgets(command, sizeof(command), stdin); //the command is read ... MAXDATASIZE-1
         len_command = strlen(command) - 1; //the last character is left empty
@@ -89,7 +94,7 @@ int main(int argc, char const *argv[])
 
     }
 
-    //Client file descriptor is closed
+    //Client's file descriptor is closed
     close(sockfd);
 
     return 0;
