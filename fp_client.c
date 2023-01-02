@@ -63,19 +63,19 @@ int main(int argc, char const *argv[])
     }
 
     //As long as the word "bye" is not received, the following lines will be executed
-    while(strcmp(buf, "bye\n") != 0) {
-        fgets(command, MAXDATASIZE-1, stdin); //the command is read
+    while(strcmp(command, "adios\n") != 0) {
+        fgets(command, sizeof(command), stdin); //the command is read ... MAXDATASIZE-1
         len_command = strlen(command) - 1; //the last character is left empty
         command[len_command] = '\0';
 
-        printf("Command: %s\n",command); //the command entered is printed
+        printf("Command entered: %s\n",command); //the command entered is printed
 
         //The command is sent to the server. If there's an error, the program will finish
         if(send(sockfd, command, len_command, 0) == -1) {
             perror("send");
             exit(1);
         } else { //the command has been received successfully
-            printf("Command has been sent");
+            printf("The command has been sent\n");
         }
 
         //If recv() doesn't return an error, the response will be read
@@ -85,12 +85,15 @@ int main(int argc, char const *argv[])
         }
 
         buf[numbytes] = '\0';
-        printf("Received:\n%s\n",buf);
+        printf("\nResponse received: \n%s\n",buf);
 
         //Client file descriptor is closed
-        close(sockfd);
+        //close(sockfd);
 
     }
+
+    //Client file descriptor is closed
+    close(sockfd);
 
     return 0;
     

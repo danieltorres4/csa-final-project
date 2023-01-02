@@ -22,13 +22,23 @@
 #include <sys/wait.h>
 #include <signal.h>
 
-#define LENGTH 20000
+#define LENGTH 20000 //response
+#define MAXDATASIZE 100
+#define QLEN 2
 
 int main(int argc, char *argv[]){
-    int numbytes;
-    char buf[LENGTH];
     FILE *output;
     char buffer[LENGTH];
+
+    //For the command request
+    char command_request[MAXDATASIZE];
+    int len_comm;
+
+    //For the response
+    int numbytes;
+    char buf[LENGTH];
+
+    struct hostent *info_client;
 
     //Server and client file descriptors
     int server_fd, client_fd;
@@ -71,7 +81,7 @@ int main(int argc, char *argv[]){
     if(listen(server_fd, 1) == -1){
             perror("listen");
             exit(1);
-        }
+    }
 
     sin_size_client = sizeof(client);
 
@@ -81,33 +91,41 @@ int main(int argc, char *argv[]){
             exit(1);
         }
 
-        printf("Server: Client is connected from: %s\n", inet_ntoa(client.sin_addr));
+        //info_client = gethostbyaddr((char *) &client.sin_addr, sizeof(struct in_addr), AF_INET);
+        //info_client = gethostbyaddr((char *) &client.sin_addr, sizeof(struct in_addr), AF_INET);
+
+        printf("Server: A CLIENT is connected from: %s\n", inet_ntoa(client.sin_addr));
 
         do {
-            if((numbytes = recv(client_fd, buf, 100-1, 0)) == -1) {
+            if((numbytes = recv(client_fd, command_request, sizeof(command_request), 0)) == -1) {
                 perror("recv");
                 exit(1);
             }
 
             printf("Client's command: %s\n", buf);
 
-            buf[numbytes] = '\0';
+            command_request[numbytes] = '\0';
 
-            output = popen(buf, "r");
+            output = popen(command_request, "r");
 
-            if(output == NULL) {
-                fputs("POPEN: Failed to execute command!\n", stderr);
-            } else {
-                while(fgets(buf, LENGTH - 1, output) != NULL) {
-                    send(client_fd, buf, strlen(buf), 0);
-                }
+            // if(output == NULL) {
+            //     fputs("POPEN: Failed to execute command!\n", stderr);
+            // } else {
+            //     while(fgets(buf, LENGTH - 1, output) != NULL) {
+            //         send(client_fd, buf, strlen(buf), 0);
+            //     }
+            // }
+
+            if((output = popen(command_request, "r")) == -1) {
+                perror("popen");
             }
+
+            fgets(buf, LENGTH - 1, output);
+            send(client_fd, buf, strlen(buf), 0);
 
             pclose(output); //closing the resource
 
-            //fgets(buf, LENGTH, stdin);
-            //send(client_fd, buf, strlen(buf), 0);
-        } while(strcmp(buf, "adios\n") != 0);
+        } while(strcmp(command_request, "adios\n") != 0);
 
         printf("\nClient's connection has been ended\n");
         close(client_fd);
