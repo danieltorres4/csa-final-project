@@ -22,26 +22,23 @@
 #include <sys/wait.h>
 #include <signal.h>
 
-#define LENGTH 20000
-
-int spawn(char* program, char** arg_list) {
-    pid_t child_pid;
-
-    child_pid = fork();
-
-    if(child_pid != 0) {
-        return child_pid;
-    } else {
-        execvp(program, arg_list);
-
-        fprintf(stderr, "An error has been occurred at execvp()\n");
-        abort();
-    }
-}
+#define LENGTH 20000 //response
+#define MAXDATASIZE 100
+#define QLEN 2
 
 int main(int argc, char *argv[]){
+    FILE *output;
+    char buffer[LENGTH];
+
+    //For the command request
+    char command_request[MAXDATASIZE];
+    int len_comm;
+
+    //For the response
+    char buf[MAXDATASIZE];
     int numbytes;
-    char buf[150];
+
+    struct hostent *info_client;
 
     //Server and client file descriptors
     int server_fd, client_fd;
@@ -84,7 +81,7 @@ int main(int argc, char *argv[]){
     if(listen(server_fd, 1) == -1){
             perror("listen");
             exit(1);
-        }
+    }
 
     sin_size_client = sizeof(client);
 
@@ -94,39 +91,41 @@ int main(int argc, char *argv[]){
             exit(1);
         }
 
-        printf("Server: Client is connected from: %s\n", inet_ntoa(client.sin_addr));
+        printf("Server: A CLIENT is connected from: %s\n", inet_ntoa(client.sin_addr));
 
-        if(fork() == 0) {
-            close(server_fd);
+        do {
 
-            do {
-                if((numbytes = recv(client_fd, buf, 100-1, 0)) == -1) {
+            if((numbytes = recv(client_fd, command_request, sizeof(command_request), 0)) == -1) {
                 perror("recv");
                 exit(1);
-                }
+            }
 
-                printf("Client's command: %s\n", buf);
+            printf("Client's command: %s\n", command_request);
 
-                buf[numbytes] = '\0';
+            command_request[numbytes] = '\0';
 
-                fgets(buf, LENGTH, stdin);
+            //Using popen() function
+            output = popen(command_request, "r");
 
-                
+            if((output = popen(command_request, "r")) == -1) {
+                perror("popen");
+            }
 
+            while (fgets(buf, LENGTH-1, output) != NULL)
+            {
                 send(client_fd, buf, strlen(buf), 0);
-            } while(strcmp(buf, "adios\n") != 0);
+            }
 
-            printf("Client's connection has been finished");
-            close(client_fd);
-            exit(0);
-        } else {
-            close(client_fd);
-        } 
+            pclose(output); //closing the resource
 
+        }
+        while(strcmp(command_request, "adios") != 0);
+
+        printf("\nClient's connection has been ended\n");
+        close(client_fd);
     }
 
     close(server_fd);
     shutdown(server_fd, SHUT_RDWR);
     exit(0);
-    
 }
