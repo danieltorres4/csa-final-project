@@ -109,6 +109,10 @@ int main(int argc, char *argv[]){
             //send(client_fd, buf, strlen(buf), 0);
         } while(strcmp(buf, "adios\n") != 0);
 
+        printf("\nClient's connection has been ended\n");
+        close(client_fd);
+        exit(0);
+
     }
 
     close(server_fd);

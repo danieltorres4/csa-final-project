@@ -42,7 +42,7 @@ int main(int argc, char const *argv[])
     }
 
     //Getting information about the host server
-    if((he = gethostbyname(argv[1]) == NULL)) {
+    if((he = gethostbyname(argv[1])) == NULL) {
         perror("gethostbyname");
         exit(1);
     }
