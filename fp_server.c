@@ -35,8 +35,8 @@ int main(int argc, char *argv[]){
     int len_comm;
 
     //For the response
+    char buf[MAXDATASIZE];
     int numbytes;
-    char buf[LENGTH];
 
     struct hostent *info_client;
 
@@ -91,9 +91,6 @@ int main(int argc, char *argv[]){
             exit(1);
         }
 
-        //info_client = gethostbyaddr((char *) &client.sin_addr, sizeof(struct in_addr), AF_INET);
-        //info_client = gethostbyaddr((char *) &client.sin_addr, sizeof(struct in_addr), AF_INET);
-
         printf("Server: A CLIENT is connected from: %s\n", inet_ntoa(client.sin_addr));
 
         do {
@@ -102,34 +99,35 @@ int main(int argc, char *argv[]){
                 exit(1);
             }
 
-            printf("Client's command: %s\n", buf);
+            printf("Client's command: %s\n", command_request);
 
             command_request[numbytes] = '\0';
 
-            output = popen(command_request, "r");
+            //fgets(buf, MAXDATASIZE, stdin);
 
-            // if(output == NULL) {
-            //     fputs("POPEN: Failed to execute command!\n", stderr);
-            // } else {
-            //     while(fgets(buf, LENGTH - 1, output) != NULL) {
-            //         send(client_fd, buf, strlen(buf), 0);
-            //     }
-            // }
+            //Using popen() function
+            output = popen(command_request, "r");
 
             if((output = popen(command_request, "r")) == -1) {
                 perror("popen");
             }
 
-            fgets(buf, LENGTH - 1, output);
-            send(client_fd, buf, strlen(buf), 0);
+            while (fgets(buf, LENGTH-1, output) != NULL)
+            {
+                send(client_fd, buf, strlen(buf), 0);
+            }
+
+            //fgets(buf, LENGTH - 1, output);
+            //send(client_fd, buf, strlen(buf), 0);
 
             pclose(output); //closing the resource
 
-        } while(strcmp(command_request, "adios\n") != 0);
+        }
+        while(strcmp(command_request, "adios") != 0);
 
         printf("\nClient's connection has been ended\n");
         close(client_fd);
-        exit(0);
+        //exit(0);
 
     }
 

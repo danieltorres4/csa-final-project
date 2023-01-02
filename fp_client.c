@@ -63,7 +63,7 @@ int main(int argc, char const *argv[])
     }
 
     //As long as the word "bye" is not received, the following lines will be executed
-    while(strcmp(command, "adios\n") != 0) {
+    while(strcmp(command, "adios") != 0) {
         fgets(command, sizeof(command), stdin); //the command is read ... MAXDATASIZE-1
         len_command = strlen(command) - 1; //the last character is left empty
         command[len_command] = '\0';
@@ -86,9 +86,6 @@ int main(int argc, char const *argv[])
 
         buf[numbytes] = '\0';
         printf("\nResponse received: \n%s\n",buf);
-
-        //Client file descriptor is closed
-        //close(sockfd);
 
     }
 
