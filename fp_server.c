@@ -46,6 +46,13 @@ int main(int argc, char *argv[]){
     //Server and client file descriptors
     int server_fd, client_fd;
 
+    //pipe() fd
+    int filedes[2];
+    const int BSIZE = 100;
+    char pipeBuf[BSIZE];
+    ssize_t nbytes;
+    int status, pid;
+
     //sockaddr_in structs: server and client
     struct sockaddr_in server;
     struct sockaddr_in client;
@@ -96,6 +103,36 @@ int main(int argc, char *argv[]){
 
         printf("Server: Client is connected from: %s\n", inet_ntoa(client.sin_addr));
 
+        /*PIPE AND DUP2*/
+        status = pipe(filedes);
+        if(status == -1) {
+            perror("pipe");
+            exit(1);
+        }
+
+        pid = fork();
+
+        switch (pid)
+        {
+        case -1:
+            perror("fork");
+            break;
+
+        case 0: //Child
+            close(filedes[1]);
+            nbytes = read(filedes[0], buf, BSIZE);
+            close(filedes[0]);
+            exit(EXIT_SUCCESS);
+        
+        default: //Parent
+            close(filedes[0]);
+            write(filedes[1], "Hello\n", 12);
+            close(filedes[1]);
+            exit(EXIT_SUCCESS);
+            break;
+        }
+
+        /*
         if(fork() == 0) {
             close(server_fd);
 
@@ -121,7 +158,7 @@ int main(int argc, char *argv[]){
             exit(0);
         } else {
             close(client_fd);
-        } 
+        } */
 
     }
 
