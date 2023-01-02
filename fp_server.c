@@ -94,6 +94,7 @@ int main(int argc, char *argv[]){
         printf("Server: A CLIENT is connected from: %s\n", inet_ntoa(client.sin_addr));
 
         do {
+
             if((numbytes = recv(client_fd, command_request, sizeof(command_request), 0)) == -1) {
                 perror("recv");
                 exit(1);
@@ -102,8 +103,6 @@ int main(int argc, char *argv[]){
             printf("Client's command: %s\n", command_request);
 
             command_request[numbytes] = '\0';
-
-            //fgets(buf, MAXDATASIZE, stdin);
 
             //Using popen() function
             output = popen(command_request, "r");
@@ -116,9 +115,6 @@ int main(int argc, char *argv[]){
             {
                 send(client_fd, buf, strlen(buf), 0);
             }
-
-            //fgets(buf, LENGTH - 1, output);
-            //send(client_fd, buf, strlen(buf), 0);
 
             pclose(output); //closing the resource
 
