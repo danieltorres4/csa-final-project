@@ -117,7 +117,7 @@ int main(int argc, char *argv[]){
             //Initializing output var with popen() function which receives the requested command and the flag (read)
             //popen() function will initiate pipe streams from a process
             //this function will execute the client's requested command
-            output = popen(command_request, "r");
+            //output = popen(command_request, "r");
 
             //If popen() does not returns -1, the program will continue
             //Other way to see popen() function is the following: if a child process were created within popen() call 

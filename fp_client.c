@@ -84,7 +84,7 @@ int main(int argc, char const *argv[])
         }
 
         //If recv() doesn't return an error, the response will be read
-        if((numbytes = recv(sockfd, buf, MAXDATASIZE_RESP-1, 0)) == -1) {
+        if((numbytes = recv(sockfd, buf, sizeof(buf), 0)) == -1) { //MAXDATASIZE_RESP-1
             perror("recv");
             exit(1);
         }
